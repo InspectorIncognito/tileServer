@@ -1,6 +1,8 @@
 #!/bin/bash
 # -*- ENCODING: UTF-8 -*-
 
+# this file was built following the steps from https://switch2osm.org/serving-tiles/manually-building-a-tile-server-14-04/
+
 # install dependencies
 PASO_1=false
 # install postgreSQL and postgis
