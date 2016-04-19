@@ -28,11 +28,11 @@ STEP_10=false
 # configuring webserver
 STEP_11=false
 # tuning the system
-STEP_12=true
+STEP_12=false
 # Loading data into the server
 STEP_13=true
 # testing server
-STEP_14=true
+STEP_14=false
 
 POSTGRES_USER=transapp
 LINUX_USER=transapp
@@ -254,27 +254,28 @@ if $STEP_12; then
     
     #shared_buffers = 128MB
 
-    OLD_CHECKPOINT_SEGMENTS="#checkpoint_segments = 3        # in logfile segments, min 1, 16MB each"
-    NEW_CHECKPOINT_SEGMENTS="checkpoint_segments = 20        # in logfile segments, min 1, 16MB each"
+    OLD_CHECKPOINT_SEGMENTS="#checkpoint_segments = 3"
+    NEW_CHECKPOINT_SEGMENTS="checkpoint_segments = 20"
     sudo sed -in "s|$OLD_CHECKPOINT_SEGMENTS|$NEW_CHECKPOINT_SEGMENTS|" $POSTGRES_CONF
 
     # maintenance work mem
-    OLD_MWM="#maintenance_work_mem = 16MB        # min 1MB"
-    NEW_MWM="maintenance_work_mem = 256MB        # min 1MB"
+    OLD_MWM="#maintenance_work_mem = 16MB"
+    NEW_MWM="maintenance_work_mem = 256MB"
     sudo sed -in "s|$OLD_MWM|$NEW_MWM|" $POSTGRES_CONF
 
-    OLD_AUTOVACUUM="#autovacuum = on            # Enable autovacuum subprocess?  'on'"
-    NEW_AUTOVACUUM="autovacuum = off            # Enable autovacuum subprocess?  'on'"
+    OLD_AUTOVACUUM="#autovacuum = on"
+    NEW_AUTOVACUUM="autovacuum = off"
     sudo sed -in "s|$OLD_AUTOVACUUM|$NEW_AUTOVACUUM|" $POSTGRES_CONF
 
     # set kernel 
     SYSCTL_PATH=/etc/sysctl.conf
 
-    SYSCTL_SET="\n\n# Increase kernel shared memory segments - needed for large databases\nkernel.shmmax=268435456"
+    SYSCTL_SET="\n# Tile Server\n# Increase kernel shared memory segments - needed for large databases\nkernel.shmmax=268435456"
     #no funciona!!!!
-    sudo echo $SYSCTL_SET | sudo tee --append $SYSCTL_PATH
+    sudo sed -in "$ a\ $SYSCTL_SET" $SYSCTL_PATH
 
     # reboot the computer
+    read -p "it is necessary reboot server. After verify the change with 'sudo sysctl kernel.shmmax'. You should see '268435456'"
     #sudo sysctl kernel.shmmax
 fi
 
@@ -287,11 +288,10 @@ if $STEP_13; then
     cd $DATA_PATH
 
     # get Chile data
-    wget http://download.geofabrik.de/south-america/chile-latest.osm.pbf
+    sudo -u $LINUX_USER wget http://download.geofabrik.de/south-america/chile-latest.osm.pbf
 
     # importing data to postgres
-    osm2pgsql --slim -d gis -C 16000 --number-processes 3 $DATA_PATH/chile-latest.osm.pbf
-
+    sudo -u $LINUX_USER osm2pgsql --slim -d gis -C 16000 --number-processes 3 $DATA_PATH/chile-latest.osm.pbf
 fi
 
 # turn on server
