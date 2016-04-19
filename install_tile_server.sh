@@ -291,7 +291,8 @@ if $STEP_13; then
     sudo -u $LINUX_USER wget http://download.geofabrik.de/south-america/chile-latest.osm.pbf
 
     # importing data to postgres
-    sudo -u $LINUX_USER osm2pgsql --slim -d gis -C 16000 --number-processes 3 $DATA_PATH/chile-latest.osm.pbf
+    # if you get the error "Out of memory for dense node cache, reduce --cache size" modify --cache option
+    sudo -u $LINUX_USER osm2pgsql --slim -d gis -C 16000 --number-processes 3 --cache 700 $DATA_PATH/chile-latest.osm.pbf
 fi
 
 # turn on server
