@@ -1,7 +1,9 @@
 #!/bin/bash
 # -*- ENCODING: UTF-8 -*-
 
-# this file was built following the steps from https://switch2osm.org/serving-tiles/manually-building-a-tile-server-14-04/
+# this file was built following the steps from:
+#    https://switch2osm.org/serving-tiles/manually-building-a-tile-server-14-04/
+#    https://wiki.debian.org/OSM/tileserver/jessie#Install_mod_tile
 
 # install dependencies
 STEP_1=false
