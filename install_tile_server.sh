@@ -29,10 +29,15 @@ STEP_10=false
 STEP_11=false
 # tuning the system
 STEP_12=false
+
+# End of The first stage. Reboot server and continue 
+
 # Loading data into the server
-STEP_13=true
+STEP_13=false
 # testing server
-STEP_14=false
+STEP_14=true
+# setting renderd to run automatically 
+STEP_15=false
 
 POSTGRES_USER=transapp
 LINUX_USER=transapp
@@ -56,6 +61,7 @@ fi
 if $STEP_3; then
     echo "PASO 3 ========================================================="
 	# answer yes for superuser (although this isn't strictly necessary)
+    read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
 	sudo -u postgres createuser $POSTGRES_USER	
 	sudo -u postgres createdb -E UTF8 -O $POSTGRES_USER $POSTGRES_DBNAME
 fi
@@ -63,6 +69,7 @@ fi
 if $STEP_4; then
     echo "PASO 4 ========================================================="
 	sudo useradd -m $LINUX_USER
+    read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
 	sudo passwd $LINUX_USER # use pass “transapp”	
 fi
 
@@ -75,8 +82,9 @@ fi
 
 # make a directory for dependences's repository 
 echo "CREAR CARPETA SRC =============================================="
-rm -rf $PATH_SRC
-mkdir $PATH_SRC
+if [ ! -d "$PATH_SRC" ]; then
+    mkdir $PATH_SRC
+fi
 
 if $STEP_6; then
     echo "PASO 6 ========================================================="
@@ -159,7 +167,7 @@ if $STEP_9; then
     sudo -u $LINUX_USER sed -in "s|$URL_SLP|$NEW_URL_SLP|" osm-bright/osm-bright.osm2pgsql.mml
 
     URL_LPS="\"file\": \"http://data.openstreetmapdata.com/land-polygons-split-3857.zip\""
-    NEW_URL_LPS="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/land-polygons-split-3857/land_polygons.shp\", \"type\": \"shape\","
+    NEW_URL_LPS="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/land-polygons-split-3857/land_polygons.shp\", \"type\": \"shape\""
     sudo -u $LINUX_USER sed -in "s|$URL_LPS|$NEW_URL_LPS|" osm-bright/osm-bright.osm2pgsql.mml
 
     URL_PPS="\"file\": \"http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip\""
@@ -239,7 +247,7 @@ if $STEP_11; then
     # modify /etc/apache2/sites-available/000-default.conf
     APACHE_CONF_FILE=/etc/apache2/sites-available/000-default.conf
 
-    MODTILE_OPTS="\n\nLoadTileConfigFile $PATH_RENDERD_FILE\n   ModTileRenderdSocketName /var/run/renderd/renderd.sock\n # Timeout before giving up for a tile to be rendered\n   ModTileRequestTimeout 0\n   # Timeout before giving up for a tile to be rendered that is otherwise missing\n  ModTileMissingRequestTimeout 30\n\n"
+    MODTILE_OPTS="\n\n    LoadTileConfigFile $PATH_RENDERD_FILE\n    ModTileRenderdSocketName /var/run/renderd/renderd.sock\n    # Timeout before giving up for a tile to be rendered\n    ModTileRequestTimeout 0\n    # Timeout before giving up for a tile to be rendered that is otherwise missing\n    ModTileMissingRequestTimeout 30\n\n"
     
     sudo sed -in "s|</VirtualHost>|$MODTILE_OPTS</VirtualHost>|" $APACHE_CONF_FILE
 
@@ -275,9 +283,13 @@ if $STEP_12; then
     sudo sed -in "$ a\ $SYSCTL_SET" $SYSCTL_PATH
 
     # reboot the computer
-    read -p "it is necessary reboot server. After verify the change with 'sudo sysctl kernel.shmmax'. You should see '268435456'"
+    read -p "it is necessary reboot server. After verify the change with 'sudo sysctl kernel.shmmax'. You should see '268435456'\n" -n 1 -s
     #sudo sysctl kernel.shmmax
 fi
+
+# End of the first stage. Now you have to reboot the computer and then execute the second stage
+#read -p "End of the first stage. Now you have to reboot the computer and then execute the second stage\n" -n 1 -s
+#exit
 
 if $STEP_13; then
     echo "PASO 13 ========================================================"
@@ -297,7 +309,7 @@ fi
 
 # turn on server
 if $STEP_14; then
-    echo "PASO 13 ========================================================"
+    echo "PASO 14 ========================================================"
 
     sudo -u $LINUX_USER  renderd -f -c /usr/local/etc/renderd.conf
 
@@ -305,3 +317,27 @@ if $STEP_14; then
 
     # now, try http://localhost/osm_tiles/0/0/0.png
 fi
+
+# setting renderd to run automatically 
+if $STEP_15; then
+    echo "PASO 15 ========================================================"
+
+    RENDERD_INIT_FILE=/etc/init.d/renderd
+    sudo cp $PATH_SRC/mod_tile/debian/renderd.init $RENDERD_INIT_FILE
+    sudo chmod u+x $RENDERD_INIT_FILE
+
+    sudo sed -in 's|DAEMON=/usr/bin/\$NAME|DAEMON=/usr/local/bin/\$NAME|' $RENDERD_INIT_FILE
+    sudo sed -in 's|DAEMON_ARGS=""|DAEMON_ARGS="-c /usr/local/etc/renderd.conf"|' $RENDERD_INIT_FILE
+    sudo sed -in "s|RUNASUSER=www-data|RUNASUSER=$LINUX_USER|" $RENDERD_INIT_FILE
+
+    # You should now be able to start mapnik by doing the following:
+    # sudo /etc/init.d/renderd start
+    # and stop it:
+    # sudo /etc/init.d/renderd stop
+
+    # link to start automatically
+    sudo ln -s $RENDERD_INIT_FILE /etc/rc2.d/S20renderd
+
+    sudo service apache2 reload
+fi
+
