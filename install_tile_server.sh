@@ -39,6 +39,7 @@ STEP_14=true
 # setting renderd to run automatically 
 STEP_15=false
 
+INSTALL_DIRECTORY=.
 POSTGRES_USER=transapp
 LINUX_USER=transapp
 POSTGRES_DBNAME=gis
@@ -315,7 +316,8 @@ if $STEP_14; then
 
     sudo service apache2 reload
 
-    # now, try http://localhost/osm_tiles/0/0/0.png
+    sudo ln -s $INSTALL_DIRECTORY/test_tile_server.html test_tile_server.html
+    # now, try http://localhost/test_tile_server.html
 fi
 
 # setting renderd to run automatically 
