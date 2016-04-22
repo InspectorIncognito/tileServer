@@ -10,6 +10,9 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.5.0/ol.css" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.5.0/ol.js"></script>
+
+    <link rel="stylesheet" href="http://rawgit.com/walkermatt/ol3-layerswitcher/master/src/ol3-layerswitcher.css">
+    <script src="http://rawgit.com/walkermatt/ol3-layerswitcher/master/src/ol3-layerswitcher.js"></script>
 </head>
 <body>
 <div class="container-fluid">
@@ -23,39 +26,49 @@
     // tiles.openseamap.org does not set CORS headers, so we have to disable
     // crossOrigin and we cannot use WebGL.
 
-    var openCycleMapLayer = new ol.layer.Tile({
+    var tranSappMapLayer = new ol.layer.Tile({
         source: new ol.source.OSM({
             attributions: [
                 new ol.Attribution({
                     html: 'All maps &copy; ' +
-                        '<a href="http://www.fhernandez.cl/">Mimapa</a>'
+                        '<a href="http://www.transapp.cl/">TranSapp</a>'
                 }),
                 ol.source.OSM.ATTRIBUTION
             ],
-            //url: 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png'
             url: 'http://localhost/osm_tiles/{z}/{x}/{y}.png'
-        })
+        }),
+        title: 'OSMBright',
+        visible: true, 
+        type: 'base'
     });
-
-    var openSeaMapLayer = new ol.layer.Tile({
+ 
+    /*
+    var tranSappMapLayer2 = new ol.layer.Tile({
         source: new ol.source.OSM({
             attributions: [
                 new ol.Attribution({
                     html: 'All maps &copy; ' +
-                        '<a href="http://www.openseamap.org/">OpenSeaMap</a>'
+                        '<a href="http://www.transapp.cl/">TranSapp</a>'
                 }),
                 ol.source.OSM.ATTRIBUTION
             ],
-            crossOrigin: null,
-            url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'
-        })  
+            url: 'http://localhost/osm_tiles2/{z}/{x}/{y}.png'
+        }),
+        title: 'OSMBrigh-XX',
+        visible: false,
+        type: 'base'
     });
+    */
 
-    
     var map = new ol.Map({
         layers: [
-            openCycleMapLayer,
- //           openSeaMapLayer
+            new ol.layer.Group({
+                'title': 'Base maps',
+                layers: [
+                    tranSappMapLayer,
+    //                tranSappMapLayer2
+                ]
+            })
         ],
         target: 'map',
         controls: ol.control.defaults({
@@ -65,11 +78,18 @@
         }),
         view: new ol.View({
             maxZoom: 19,
-            center: [0,0],
+            center: ol.proj.fromLonLat([-70.6633174,-33.4533229]),
             zoom: 15,
         })
     });
 
+    var layerSwitcher = new ol.control.LayerSwitcher({ 
+        tipLabel: 'legend'
+    });
+
+    map.addControl(layerSwitcher);
+
+    layerSwitcher.showPanel();
 </script>
 </body>
 </html>
