@@ -35,7 +35,7 @@ STEP_12=false
 # Loading data into the server
 STEP_13=false
 # testing server
-STEP_14=true
+STEP_14=false
 # setting renderd to run automatically 
 STEP_15=false
 
@@ -135,7 +135,8 @@ if $STEP_9; then
     sudo mkdir -p $PATH_STYLESHEET
     sudo chown $LINUX_USER $PATH_STYLESHEET
     cd $PATH_STYLESHEET
-    sudo -u $LINUX_USER wget https://github.com/mapbox/osm-bright/archive/master.zip -P $PATH_STYLESHEET
+
+    # data 
     sudo -u $LINUX_USER wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip -P $PATH_STYLESHEET
     sudo -u $LINUX_USER wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip -P $PATH_STYLESHEET
     sudo -u $LINUX_USER mkdir ne_10m_populated_places_simple
@@ -144,6 +145,12 @@ if $STEP_9; then
     sudo -u $LINUX_USER unzip ne_10m_populated_places_simple.zip
     sudo -u $LINUX_USER rm ne_10m_populated_places_simple.zip
     cd ..
+
+    # stylesheets
+    # OSMBright
+    sudo -u $LINUX_USER wget https://github.com/mapbox/osm-bright/archive/master.zip -P $PATH_STYLESHEET
+    # OSMBRight-Smartrak
+    #sudo -u $LINUX_USER https://github.com/jacobtoye/osm-bright/archive/master.zip -P $PATH_STYLESHEET
 
     # move the downloaded data into the osm-bright-master project directory
     sudo -u $LINUX_USER unzip '*.zip'
@@ -163,24 +170,26 @@ if $STEP_9; then
     # The OSM Bright stylesheet now needs to be adjusted to include the location of our data files. 
     # We have to Edit the file osm-bright/osm-bright.osm2pgsql.mml
     
+    $OSM_BRIGHT_MML=./osm-bright/osm-bright.osm2pgsql.mml
+
     URL_SLP="\"file\": \"http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip\","
     NEW_URL_SLP="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/simplified-land-polygons-complete-3857/simplified_land_polygons.shp\", \"type\": \"shape\","
-    sudo -u $LINUX_USER sed -in "s|$URL_SLP|$NEW_URL_SLP|" osm-bright/osm-bright.osm2pgsql.mml
+    sudo -u $LINUX_USER sed -in "s|$URL_SLP|$NEW_URL_SLP|" $OSM_BRIGHT_MML
 
     URL_LPS="\"file\": \"http://data.openstreetmapdata.com/land-polygons-split-3857.zip\""
     NEW_URL_LPS="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/land-polygons-split-3857/land_polygons.shp\", \"type\": \"shape\""
-    sudo -u $LINUX_USER sed -in "s|$URL_LPS|$NEW_URL_LPS|" osm-bright/osm-bright.osm2pgsql.mml
+    sudo -u $LINUX_USER sed -in "s|$URL_LPS|$NEW_URL_LPS|" $OSM_BRIGHT_MML
 
     URL_PPS="\"file\": \"http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip\""
     NEW_URL_PPS="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/ne_10m_populated_places_simple/ne_10m_populated_places_simple.shp\", \"type\": \"shape\""
-    sudo -u $LINUX_USER sed -in "s|$URL_PPS|$NEW_URL_PPS|" osm-bright/osm-bright.osm2pgsql.mml
+    sudo -u $LINUX_USER sed -in "s|$URL_PPS|$NEW_URL_PPS|" $OSM_BRIGHT_MML
 
     # to replace srs and srs-name with unique line
     SOURCE="\"srs\": \"\","
-    sudo -u $LINUX_USER sed -in "s|$SOURCE||" osm-bright/osm-bright.osm2pgsql.mml
+    sudo -u $LINUX_USER sed -in "s|$SOURCE||" $OSM_BRIGHT_MML
     SOURCE_NAME="\"srs-name\": \"autodetect\""
     NEW_SOURCE_NAME="\"srs\": \"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs\""
-    sudo -u $LINUX_USER sed -in "s|$SOURCE_NAME|$NEW_SOURCE_NAME|" osm-bright/osm-bright.osm2pgsql.mml
+    sudo -u $LINUX_USER sed -in "s|$SOURCE_NAME|$NEW_SOURCE_NAME|" $OSM_BRIGHT_MML
 
 fi
 
@@ -305,18 +314,19 @@ if $STEP_13; then
 
     # importing data to postgres
     # if you get the error "Out of memory for dense node cache, reduce --cache size" modify --cache option
-    sudo -u $LINUX_USER osm2pgsql --slim -d gis -C 16000 --number-processes 3 --cache 700 $DATA_PATH/chile-latest.osm.pbf
+    sudo -u $LINUX_USER osm2pgsql --slim -d $POSTGRES_DBNAME -C 16000 --number-processes 3 --cache 700 $DATA_PATH/chile-latest.osm.pbf
 fi
 
 # turn on server
 if $STEP_14; then
     echo "PASO 14 ========================================================"
 
-    sudo -u $LINUX_USER  renderd -f -c /usr/local/etc/renderd.conf
-
     sudo service apache2 reload
 
     sudo ln -s $INSTALL_DIRECTORY/test_tile_server.html test_tile_server.html
+
+    sudo -u $LINUX_USER  renderd -f -c /usr/local/etc/renderd.conf
+
     # now, try http://localhost/test_tile_server.html
 fi
 
@@ -326,7 +336,7 @@ if $STEP_15; then
 
     RENDERD_INIT_FILE=/etc/init.d/renderd
     sudo cp $PATH_SRC/mod_tile/debian/renderd.init $RENDERD_INIT_FILE
-    sudo chmod u+x $RENDERD_INIT_FILE
+    sudo chmod a+x $RENDERD_INIT_FILE
 
     sudo sed -in 's|DAEMON=/usr/bin/\$NAME|DAEMON=/usr/local/bin/\$NAME|' $RENDERD_INIT_FILE
     sudo sed -in 's|DAEMON_ARGS=""|DAEMON_ARGS="-c /usr/local/etc/renderd.conf"|' $RENDERD_INIT_FILE
@@ -342,4 +352,3 @@ if $STEP_15; then
 
     sudo service apache2 reload
 fi
-
