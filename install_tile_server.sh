@@ -10,7 +10,7 @@ STEP_1=false
 # install postgreSQL and postgis
 STEP_2=false
 # create database and user
-STEP_3=true
+STEP_3=false
 # create linux user with the same name of postgres user
 STEP_4=false
 # enable postgis on database  
@@ -18,7 +18,7 @@ STEP_5=false
 # install osm2pgsql
 STEP_6=false
 # install mapnik
-STEP_7=false
+STEP_7=true
 # install mod_tile and renderd
 STEP_8=false
 # install stylesheet for map
@@ -62,7 +62,7 @@ fi
 if $STEP_3; then
     echo "PASO 3 ========================================================="
     # answer yes for superuser (although this isn't strictly necessary)
-    read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
+    read -p "USE PASS 'transapp' (lowercase and whitout quote)" -n 1 -s
     sudo -u postgres createuser $POSTGRES_USER    
     sudo -u postgres createdb -E UTF8 -O $POSTGRES_USER $POSTGRES_DBNAME
 fi
@@ -70,7 +70,7 @@ fi
 if $STEP_4; then
     echo "PASO 4 ========================================================="
     sudo useradd -m $LINUX_USER
-    read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
+    read -p "USE PASS 'transapp' (lowercase and whitout quote)" -n 1 -s
     sudo passwd $LINUX_USER # use pass “transapp”    
 fi
 
@@ -84,7 +84,7 @@ fi
 # make a directory for dependences's repository 
 echo "CREAR CARPETA SRC =============================================="
 if [ ! -d "$PATH_SRC" ]; then
-    mkdir $PATH_SRC
+    sudo mkdir -p $PATH_SRC
 fi
 
 if $STEP_6; then
