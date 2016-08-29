@@ -24,11 +24,11 @@ STEP_8=false
 # install stylesheet for map
 STEP_9=false
 # compiling the stylesheet
-STEP_10=true
+STEP_10=false
 # configuring webserver
 STEP_11=false
 # tuning the system
-STEP_12=false
+STEP_12=true
 
 # End of The first stage. Reboot server and continue 
 
@@ -267,7 +267,8 @@ fi
 
 if $STEP_12; then
     echo "PASO 12 ========================================================"
-    POSTGRES_CONF=/etc/postgresql/9.3/main/postgresql.conf
+    POSTGRES_VERSION=$(psql -V | egrep -o '[0-9]{1,}\.[0-9]{1,}')
+    POSTGRES_CONF=/etc/postgresql/$POSTGRES_VERSION/main/postgresql.conf
     
     #shared_buffers = 128MB
 
