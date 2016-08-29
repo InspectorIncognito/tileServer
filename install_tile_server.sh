@@ -107,8 +107,8 @@ if $STEP_7; then
     cd $PATH_SRC
     git clone git://github.com/mapnik/mapnik
     cd mapnik
-    git branch 2.2 origin/2.2.x
-    git checkout 2.2
+    git branch 2.3 origin/2.3.x
+    git checkout 2.3
 
     python scons/scons.py configure INPUT_PLUGINS=all OPTIMIZATION=3 SYSTEM_FONTS=/usr/share/fonts/truetype/
     make
