@@ -28,14 +28,14 @@ STEP_10=false
 # configuring webserver
 STEP_11=false
 # tuning the system
-STEP_12=true
+STEP_12=false
 
 # End of The first stage. Reboot server and continue 
 
 # Loading data into the server
 STEP_13=false
 # testing server
-STEP_14=false
+STEP_14=true
 # setting renderd to run automatically 
 STEP_15=false
 
@@ -305,7 +305,7 @@ if $STEP_13; then
     echo "PASO 13 ========================================================"
 
     DATA_PATH=/usr/local/share/maps/planet
-    sudo mkdir $DATA_PATH
+    sudo mkdir -p $DATA_PATH
     sudo chown $LINUX_USER $DATA_PATH
     cd $DATA_PATH
 
@@ -323,7 +323,8 @@ if $STEP_14; then
 
     sudo service apache2 reload
 
-    sudo ln -s $INSTALL_DIRECTORY/test_tile_server.html test_tile_server.html
+    HTML_DIRECTORY=/var/www/html
+    sudo cp $INSTALL_DIRECTORY/test_tile_server.html $HTML_DIRECTORY
 
     sudo -u $LINUX_USER  renderd -f -c /usr/local/etc/renderd.conf
 
