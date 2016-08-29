@@ -6,9 +6,9 @@
 #    https://wiki.debian.org/OSM/tileserver/jessie#Install_mod_tile
 
 # install dependencies
-STEP_1=true
+STEP_1=false
 # install postgreSQL and postgis
-STEP_2=false
+STEP_2=true
 # create database and user
 STEP_3=false
 # create linux user with the same name of postgres user
@@ -56,7 +56,7 @@ fi
 
 if $STEP_2; then
     echo "PASO 2 ========================================================="
-	sudo apt-get install postgresql postgresql-contrib postgis postgresql-9.3-postgis-2.1
+	sudo apt-get install postgresql postgresql-contrib postgis postgis
 fi
 
 if $STEP_3; then
