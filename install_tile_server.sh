@@ -6,7 +6,7 @@
 #    https://wiki.debian.org/OSM/tileserver/jessie#Install_mod_tile
 
 # install dependencies
-STEP_1=false
+STEP_1=true
 # install postgreSQL and postgis
 STEP_2=false
 # create database and user
@@ -51,7 +51,7 @@ PATH_STYLESHEET=/usr/local/share/maps/style
 # it is aproximately 700MB 
 if $STEP_1; then 
     echo "PASO 1 ========================================================="
-	sudo apt-get install libboost-all-dev subversion git-core tar unzip wget bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin libprotobuf-c0-dev protobuf-c-compiler libfreetype6-dev libpng12-dev libtiff4-dev libicu-dev libgdal-dev libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1 liblua5.1-dev libgeotiff-epsg node-carto 
+	sudo apt-get install libboost-all-dev subversion git-core tar unzip wget bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin libprotobuf-c-dev protobuf-c-compiler libfreetype6-dev libpng12-dev libtiff5-dev libicu-dev libgdal-dev libcairo2-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1 liblua5.1-0-dev libgeotiff-epsg node-carto 
 fi
 
 if $STEP_2; then
