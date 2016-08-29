@@ -18,13 +18,13 @@ STEP_5=false
 # install osm2pgsql
 STEP_6=false
 # install mapnik
-STEP_7=true
+STEP_7=false
 # install mod_tile and renderd
 STEP_8=false
 # install stylesheet for map
 STEP_9=false
 # compiling the stylesheet
-STEP_10=false
+STEP_10=true
 # configuring webserver
 STEP_11=false
 # tuning the system
@@ -169,8 +169,7 @@ if $STEP_9; then
     # configuring OSM Bright
     # The OSM Bright stylesheet now needs to be adjusted to include the location of our data files. 
     # We have to Edit the file osm-bright/osm-bright.osm2pgsql.mml
-    
-    $OSM_BRIGHT_MML=./osm-bright/osm-bright.osm2pgsql.mml
+    OSM_BRIGHT_MML=./osm-bright/osm-bright.osm2pgsql.mml
 
     URL_SLP="\"file\": \"http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip\","
     NEW_URL_SLP="\"file\": \"/usr/local/share/maps/style/osm-bright-master/shp/simplified-land-polygons-complete-3857/simplified_land_polygons.shp\", \"type\": \"shape\","
