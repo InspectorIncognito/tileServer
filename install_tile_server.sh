@@ -8,9 +8,9 @@
 # install dependencies
 STEP_1=false
 # install postgreSQL and postgis
-STEP_2=true
+STEP_2=false
 # create database and user
-STEP_3=false
+STEP_3=true
 # create linux user with the same name of postgres user
 STEP_4=false
 # enable postgis on database  
@@ -51,34 +51,34 @@ PATH_STYLESHEET=/usr/local/share/maps/style
 # it is aproximately 700MB 
 if $STEP_1; then 
     echo "PASO 1 ========================================================="
-	sudo apt-get install libboost-all-dev subversion git-core tar unzip wget bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin libprotobuf-c-dev protobuf-c-compiler libfreetype6-dev libpng12-dev libtiff5-dev libicu-dev libgdal-dev libcairo2-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1 liblua5.1-0-dev libgeotiff-epsg node-carto 
+    sudo apt-get install libboost-all-dev subversion git-core tar unzip wget bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin libprotobuf-c-dev protobuf-c-compiler libfreetype6-dev libpng12-dev libtiff5-dev libicu-dev libgdal-dev libcairo2-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1 liblua5.1-0-dev libgeotiff-epsg node-carto 
 fi
 
 if $STEP_2; then
     echo "PASO 2 ========================================================="
-	sudo apt-get install postgresql postgresql-contrib postgis postgis
+    sudo apt-get install postgresql postgresql-contrib postgis postgis
 fi
 
 if $STEP_3; then
     echo "PASO 3 ========================================================="
-	# answer yes for superuser (although this isn't strictly necessary)
+    # answer yes for superuser (although this isn't strictly necessary)
     read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
-	sudo -u postgres createuser $POSTGRES_USER	
-	sudo -u postgres createdb -E UTF8 -O $POSTGRES_USER $POSTGRES_DBNAME
+    sudo -u postgres createuser $POSTGRES_USER    
+    sudo -u postgres createdb -E UTF8 -O $POSTGRES_USER $POSTGRES_DBNAME
 fi
 
 if $STEP_4; then
     echo "PASO 4 ========================================================="
-	sudo useradd -m $LINUX_USER
+    sudo useradd -m $LINUX_USER
     read -p "USE PASS 'transapp' (lowercase and whitout quote)\n" -n 1 -s
-	sudo passwd $LINUX_USER # use pass “transapp”	
+    sudo passwd $LINUX_USER # use pass “transapp”    
 fi
 
 if $STEP_5; then
     echo "PASO 5 ========================================================="
-	sudo -u postgres psql -d $POSTGRES_DBNAME -c "CREATE EXTENSION postgis;"
-	sudo -u postgres psql -d $POSTGRES_DBNAME -c "ALTER TABLE geometry_columns OWNER TO $POSTGRES_USER;"
- 	sudo -u postgres psql -d $POSTGRES_DBNAME -c "ALTER TABLE spatial_ref_sys OWNER TO $POSTGRES_USER;"
+    sudo -u postgres psql -d $POSTGRES_DBNAME -c "CREATE EXTENSION postgis;"
+    sudo -u postgres psql -d $POSTGRES_DBNAME -c "ALTER TABLE geometry_columns OWNER TO $POSTGRES_USER;"
+    sudo -u postgres psql -d $POSTGRES_DBNAME -c "ALTER TABLE spatial_ref_sys OWNER TO $POSTGRES_USER;"
 fi
 
 # make a directory for dependences's repository 
