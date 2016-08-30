@@ -203,6 +203,11 @@ if $STEP_10; then
 
     sudo -u $LINUX_USER sed -in "s|$OLD_PATH|$NEW_PATH|" configure.py
 
+    OLD_PLACES_PATH="ne_10m_populated_places/ne_10m_populated_places"
+    NEW_PLACES_PATH="ne_10m_populated_places_simple/ne_10m_populated_places_simple"
+
+    sudo -u $LINUX_USER sed -in "s|$OLD_PLACES_PATH|$NEW_PLACES_PATH|" configure.py
+
     # Replace the database name
     OLD_DBNAME="\"osm\""
 
@@ -325,6 +330,9 @@ if $STEP_14; then
 
     HTML_DIRECTORY=/var/www/html
     sudo cp $INSTALL_DIRECTORY/test_tile_server.html $HTML_DIRECTORY
+
+    PUBLIC_IP="setIpToUseThisExampleInThe14Step"
+    sudo sed -in "s|localhost|$PUBLIC_IP|" $HTML_DIRECTORY/test_tile_server.html
 
     sudo -u $LINUX_USER  renderd -f -c /usr/local/etc/renderd.conf
 
