@@ -227,7 +227,7 @@ if $STEP_11; then
     sudo sed -in "s|$OLD_PLUGINS_DIR|$NEW_PLUGINS_DIR|" $PATH_RENDERD_FILE
     
     OLD_FONT_DIR="font_dir=/usr/share/fonts/truetype"
-    NEW_FONT_DIR="font_dir=/usr/share/fonts/truetype/ttf-dejavu"
+    NEW_FONT_DIR="font_dir=/usr/share/fonts/truetype/dejavu"
     sudo sed -in "s|$OLD_FONT_DIR|$NEW_FONT_DIR|" $PATH_RENDERD_FILE
 
     OLD_XML_PATH="XML=/home/jburgess/osm/svn.openstreetmap.org/applications/rendering/mapnik/osm-local.xml"
